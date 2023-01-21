@@ -17,6 +17,8 @@ function gameUpdate( scope ){
         };
 
 
+        // Update cells referencing static board copy
+
         if (state.hasOwnProperty('cells')){
             var cells = scope.state.cells;
             for (var cell in cells) {
@@ -24,7 +26,6 @@ function gameUpdate( scope ){
             }
         };
         
-        // then update the board with the locations of cells
 
     return state;
     }
