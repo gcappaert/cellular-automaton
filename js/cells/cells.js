@@ -7,6 +7,7 @@ function Cell( scope, x, y, alive ) {
 
     var cell = this;
 
+
     // I can add a type parameter when I flesh it out a little more
 
     cell.state = {
@@ -24,6 +25,7 @@ function Cell( scope, x, y, alive ) {
 
     
     
+
     cell.render = function cellRender(){
         if(!cell.state.alive){
             //pass

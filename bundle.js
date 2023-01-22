@@ -32,21 +32,20 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
         cell_height: cell_height
     };
 
-
+    // Add the board canvas to the container
 
     this.viewport = cUtils.generateCanvas(w, h);
     this.viewport.id  = "gameViewport";
 
-    // Add the canvas to the container
-    
-
     this.context = this.viewport.getContext('2d');
-
     $container.insertBefore(this.viewport, $container.firstChild);
 
     
+    
     this.state = {};
+    this.state.start = false;
     this.state.cells = [];
+
 
     // Create a board that is populated initially by a bunch of dead cell objects
     // The objects are also referenced by the one-dimensional cells array
@@ -201,6 +200,9 @@ function gameLoop ( scope ) {
 
 
     loop.main = function mainLoop( tframe ) {
+
+        // Request a new animation frame
+        // To stop the loop, can call window.cancelAnimationFrame( loop.main )
         loop.stopLoop = window.requestAnimationFrame( loop.main );
 
         // When did the last loop occur?
@@ -233,16 +235,22 @@ function gameLoop ( scope ) {
             resetState = (resetState === 'new' ? 'old' : 'new');
             }
         
+        
+        scope.render(); 
 
-        scope.state = scope.update( now );
-        scope.render();        
+        if (scope.state.start){
+            scope.state = scope.update( now );
+        }
+               
         
 
         }   
     };
-    loop.main();
 
+
+    loop.main();
     return loop;
+
 };
 
 module.exports = gameLoop;
@@ -272,6 +280,7 @@ function gameRender( scope ){
                 scope.context.strokeRect(j*(cell_height), i*(cell_width), cell_height, cell_width);
             }
         };
+
 
 
         // If the state has been instantiated, render the cells
@@ -307,6 +316,8 @@ function gameUpdate( scope ){
         };
 
 
+        // Update cells referencing static board copy
+
         if (state.hasOwnProperty('cells')){
             var cells = scope.state.cells;
             for (var cell in cells) {
@@ -314,7 +325,6 @@ function gameUpdate( scope ){
             }
         };
         
-        // then update the board with the locations of cells
 
     return state;
     }

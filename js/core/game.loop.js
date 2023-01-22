@@ -29,6 +29,9 @@ function gameLoop ( scope ) {
 
 
     loop.main = function mainLoop( tframe ) {
+
+        // Request a new animation frame
+        // To stop the loop, can call window.cancelAnimationFrame( loop.main )
         loop.stopLoop = window.requestAnimationFrame( loop.main );
 
         // When did the last loop occur?
@@ -61,16 +64,24 @@ function gameLoop ( scope ) {
             resetState = (resetState === 'new' ? 'old' : 'new');
             }
         
+        
+        scope.render(); 
+        
+        // Only update if start button has been pressed
 
-        scope.state = scope.update( now );
-        scope.render();        
+        if (scope.state.start){
+            scope.state = scope.update( now );
+        }
+               
         
 
         }   
     };
-    loop.main();
 
+
+    loop.main();
     return loop;
+
 };
 
 module.exports = gameLoop;

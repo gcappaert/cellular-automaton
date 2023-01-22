@@ -7,6 +7,16 @@
 </head>
 <body>
     <div id="container"></div>
+    <div id="controls">
+        <button><img class="button" onclick="startGame(window.game)" name = "play" src="/assets/images/play.svg"></button>
+        <script>
+            function startGame( scope ){
+                scope.state.start = true;
+            }
+        </script>
+        <button><img class="button" name ="reset" src="/assets/images/reset.svg"></button>
+        
+    </div>
     <script src="bundle.js"></script>
 </body>
 </html>

@@ -24,6 +24,7 @@ function gameRender( scope ){
         };
 
 
+
         // If the state has been instantiated, render the cells
 
         if (scope.state && scope.state.hasOwnProperty('cells')){

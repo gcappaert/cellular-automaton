@@ -2,5 +2,27 @@
     justify-content: center;
     display: flex;
     width: 100%;
-    margin-top: 4em;
+    margin-top: 3em;
+}
+
+#controls{
+    justify-content: center;
+    display: flex;
+    margin: 1em;
+    width: 100%;
+}
+
+button {
+
+    all:unset;
+}
+
+.button{
+    opacity: 80%;
+    margin: 0.5em
+}
+
+.button:hover{
+    opacity: 100%;
+    cursor:pointer;
 }

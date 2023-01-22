@@ -31,21 +31,20 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
         cell_height: cell_height
     };
 
-
+    // Add the board canvas to the container
 
     this.viewport = cUtils.generateCanvas(w, h);
     this.viewport.id  = "gameViewport";
 
-    // Add the canvas to the container
-    
-
     this.context = this.viewport.getContext('2d');
-
     $container.insertBefore(this.viewport, $container.firstChild);
 
     
+    
     this.state = {};
+    this.state.start = false;
     this.state.cells = [];
+
 
     // Create a board that is populated initially by a bunch of dead cell objects
     // The objects are also referenced by the one-dimensional cells array
