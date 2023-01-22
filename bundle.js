@@ -36,11 +36,11 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     this.viewport = cUtils.generateCanvas(w, h);
     this.viewport.id  = "gameViewport";
-
     this.context = this.viewport.getContext('2d');
-    $container.insertBefore(this.viewport, $container.firstChild);
 
+    $container.insertBefore(this.viewport, $container.firstChild);
     
+    this.init = function gameInit(){
     
     this.state = {};
     this.state.start = false;
@@ -60,8 +60,11 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
             this.state.cells.push(newcell);
             row.push(newcell);
         };
-        this.state.board.push(row)
+        this.state.board.push(row);
     };
+    };
+
+    this.init();
 
     //testing for logic functionality
     this.state.board[1][3].state.alive = true;
@@ -80,18 +83,19 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 }
 
 
-window.game = new Game(800,800,20,20,5,false);
+window.game = new Game(800,800,20,20,10,false);
 
 module.exports = game;
 },{"./js/cells/cells.js":2,"./js/core/game.loop.js":3,"./js/core/game.render.js":4,"./js/core/game.update.js":5,"./js/utils/utils.canvas.js":6}],2:[function(require,module,exports){
 // ./js/cells/cells.js
 
-
+var mouse = require('../utils/utils.mouse.js');
 
 function Cell( scope, x, y, alive ) {
 
 
     var cell = this;
+
 
     // I can add a type parameter when I flesh it out a little more
 
@@ -108,11 +112,28 @@ function Cell( scope, x, y, alive ) {
     cell_width = scope.constants.cell_width,
     cell_height = scope.constants.cell_height;
 
-    
-    
+    // Previews position of cell in the mode prior to game start
+
+    cell.preview = function cellPreview(){
+        if (mouse.mouse_position.xpos > x * cell_width && 
+            mouse.mouse_position.xpos < x * cell_width + cell_width &&
+            mouse.mouse_position.ypos > y * cell_height && 
+            mouse.mouse_position.ypos < y * cell_height + cell_height){
+
+                scope.context.fillStyle = "rgba(0,0,0,0.5)"
+                scope.context.fillRect(
+                    x * cell_width,
+                    y * cell_height,
+                    cell_width,
+                    cell_height
+                )
+            }
+    }
+
+
     cell.render = function cellRender(){
         if(!cell.state.alive){
-            //pass
+
         }
         else{
         scope.context.fillStyle = "rgba(0,0,0,0.5)"
@@ -131,6 +152,18 @@ function Cell( scope, x, y, alive ) {
         // using Conway's rules, if a cell is alive and has 2 or 3 live neighbors, it lives
         // if a cell is dead and has 3 or more live neighbors, it lives 
 
+        if (!scope.state.start){
+            if(mouse.click_position.xpos > x * cell_width && 
+                mouse.click_position.xpos < x * cell_width + cell_width &&
+                mouse.click_position.ypos > y * cell_height && 
+                mouse.click_position.ypos < y * cell_height + cell_height){
+                    if (!cell.state.alive){
+                        cell.state.alive = true;
+                    }
+                    
+                }
+            
+            } else{
         var neighbors = [];
         let xpos = cell.state.position.x,
         ypos = cell.state.position.y
@@ -161,14 +194,16 @@ function Cell( scope, x, y, alive ) {
         
     };
 
+    
+
     return cell;
+}
 }
 
 
 
-
 module.exports = Cell;
-},{}],3:[function(require,module,exports){
+},{"../utils/utils.mouse.js":7}],3:[function(require,module,exports){
 //  /js/core/game.loop.js
 
 function gameLoop ( scope ) {
@@ -237,10 +272,11 @@ function gameLoop ( scope ) {
         
         
         scope.render(); 
+        
+        // Only update if start button has been pressed
 
-        if (scope.state.start){
-            scope.state = scope.update( now );
-        }
+        
+        scope.state = scope.update( now );
                
         
 
@@ -263,6 +299,8 @@ function gameRender( scope ){
     cell_width = scope.constants.cell_width
 
     return function render() {
+
+
 
         // Clear the canvas
         scope.context.clearRect(0,0,w,h);
@@ -289,10 +327,14 @@ function gameRender( scope ){
             var cells = scope.state.cells;
             // Loop through entities
             for (var cell in cells) {
+                if (!scope.state.start){
+                    cells[cell].preview();
+                }
                 cells[cell].render();
             }
         };
-    }
+
+}
 }
 
 module.exports=gameRender;
@@ -375,4 +417,45 @@ generateCanvas : function generateCanvas(w, h) {
 
 }
 }
+},{}],7:[function(require,module,exports){
+// js/utils/utils.mouse.js
+
+/*
+Monitors the current position of the mouse over canvas
+
+*/
+
+function mouseMove(){
+    
+    this.mouse_position = {};
+    var isClicked = false
+    this.click_position = {}
+
+
+    document.onmousemove = function(e){
+        
+        let canvas = document.getElementById('gameViewport')
+        let rect = canvas.getBoundingClientRect()
+
+        mouse_position.xpos = e.clientX - rect.left
+        mouse_position.ypos = e.clientY - rect.top
+    }
+
+
+    document.onclick = function(e){
+        let canvas = document.getElementById('gameViewport');
+        let rect = canvas.getBoundingClientRect();
+
+
+        isClicked = true;
+        click_position.xpos = e.clientX - rect.left;
+        click_position.ypos = e.clientY - rect.top;
+    }
+
+    return this
+    
+}
+
+
+module.exports = mouseMove();
 },{}]},{},[1]);

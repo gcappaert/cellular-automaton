@@ -14,8 +14,12 @@
                 scope.state.start = true;
             }
         </script>
-        <button><img class="button" name ="reset" src="/assets/images/reset.svg"></button>
-        
+        <button><img class="button" onclick="resetGame(window.game)" name ="reset" src="/assets/images/reset.svg"></button>
+        <script>
+            function resetGame (scope) {
+                scope.init();
+            }
+        </script>
     </div>
     <script src="bundle.js"></script>
 </body>

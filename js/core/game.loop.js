@@ -69,9 +69,8 @@ function gameLoop ( scope ) {
         
         // Only update if start button has been pressed
 
-        if (scope.state.start){
-            scope.state = scope.update( now );
-        }
+        
+        scope.state = scope.update( now );
                
         
 

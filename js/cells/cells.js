@@ -1,6 +1,6 @@
 // ./js/cells/cells.js
 
-
+var mouse = require('../utils/utils.mouse.js');
 
 function Cell( scope, x, y, alive ) {
 
@@ -23,12 +23,28 @@ function Cell( scope, x, y, alive ) {
     cell_width = scope.constants.cell_width,
     cell_height = scope.constants.cell_height;
 
-    
-    
+    // Previews position of cell in the mode prior to game start
+
+    cell.preview = function cellPreview(){
+        if (mouse.mouse_position.xpos > x * cell_width && 
+            mouse.mouse_position.xpos < x * cell_width + cell_width &&
+            mouse.mouse_position.ypos > y * cell_height && 
+            mouse.mouse_position.ypos < y * cell_height + cell_height){
+
+                scope.context.fillStyle = "rgba(0,0,0,0.5)"
+                scope.context.fillRect(
+                    x * cell_width,
+                    y * cell_height,
+                    cell_width,
+                    cell_height
+                )
+            }
+    }
+
 
     cell.render = function cellRender(){
         if(!cell.state.alive){
-            //pass
+
         }
         else{
         scope.context.fillStyle = "rgba(0,0,0,0.5)"
@@ -47,6 +63,18 @@ function Cell( scope, x, y, alive ) {
         // using Conway's rules, if a cell is alive and has 2 or 3 live neighbors, it lives
         // if a cell is dead and has 3 or more live neighbors, it lives 
 
+        if (!scope.state.start){
+            if(mouse.click_position.xpos > x * cell_width && 
+                mouse.click_position.xpos < x * cell_width + cell_width &&
+                mouse.click_position.ypos > y * cell_height && 
+                mouse.click_position.ypos < y * cell_height + cell_height){
+                    if (!cell.state.alive){
+                        cell.state.alive = true;
+                    }
+                    
+                }
+            
+            } else{
         var neighbors = [];
         let xpos = cell.state.position.x,
         ypos = cell.state.position.y
@@ -77,9 +105,11 @@ function Cell( scope, x, y, alive ) {
         
     };
 
+    
+
     return cell;
 }
-
+}
 
 
 

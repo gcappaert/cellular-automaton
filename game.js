@@ -35,11 +35,11 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     this.viewport = cUtils.generateCanvas(w, h);
     this.viewport.id  = "gameViewport";
-
     this.context = this.viewport.getContext('2d');
-    $container.insertBefore(this.viewport, $container.firstChild);
 
+    $container.insertBefore(this.viewport, $container.firstChild);
     
+    this.init = function gameInit(){
     
     this.state = {};
     this.state.start = false;
@@ -59,8 +59,11 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
             this.state.cells.push(newcell);
             row.push(newcell);
         };
-        this.state.board.push(row)
+        this.state.board.push(row);
     };
+    };
+
+    this.init();
 
     //testing for logic functionality
     this.state.board[1][3].state.alive = true;
@@ -79,6 +82,6 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 }
 
 
-window.game = new Game(800,800,20,20,5,false);
+window.game = new Game(800,800,20,20,10,false);
 
 module.exports = game;

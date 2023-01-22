@@ -6,6 +6,8 @@ function gameRender( scope ){
 
     return function render() {
 
+
+
         // Clear the canvas
         scope.context.clearRect(0,0,w,h);
 
@@ -31,10 +33,14 @@ function gameRender( scope ){
             var cells = scope.state.cells;
             // Loop through entities
             for (var cell in cells) {
+                if (!scope.state.start){
+                    cells[cell].preview();
+                }
                 cells[cell].render();
             }
         };
-    }
+
+}
 }
 
 module.exports=gameRender;
