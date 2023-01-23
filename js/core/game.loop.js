@@ -66,12 +66,13 @@ function gameLoop ( scope ) {
         
         
         scope.render(); 
-        
-        // Only update if start button has been pressed
-
-        
         scope.state = scope.update( now );
-               
+        
+        //if the game has started and the board is empty, reset it
+
+        if (scope.state.start && scope.state.empty){
+            scope.init();
+        }
         
 
         }   

@@ -39,10 +39,14 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     $container.insertBefore(this.viewport, $container.firstChild);
     
+
+    // intiate the state 
+
     this.init = function gameInit(){
     
     this.state = {};
     this.state.start = false;
+    this.state.empty = true;
     this.state.cells = [];
 
 
@@ -64,11 +68,6 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     };
 
     this.init();
-
-    //testing for logic functionality
-    this.state.board[1][3].state.alive = true;
-    this.state.board[2][3].state.alive = true;
-    this.state.board[3][3].state.alive = true;
     
     this.render = gameRender( this );
     this.update = gameUpdate( this );
@@ -82,6 +81,6 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 }
 
 
-window.game = new Game(800,800,20,20,10,false);
+window.game = new Game(600,600,20,20,10,false);
 
 module.exports = game;

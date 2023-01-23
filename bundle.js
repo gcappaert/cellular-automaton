@@ -40,10 +40,14 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     $container.insertBefore(this.viewport, $container.firstChild);
     
+
+    // intiate the state 
+
     this.init = function gameInit(){
     
     this.state = {};
     this.state.start = false;
+    this.state.empty = true;
     this.state.cells = [];
 
 
@@ -65,11 +69,6 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     };
 
     this.init();
-
-    //testing for logic functionality
-    this.state.board[1][3].state.alive = true;
-    this.state.board[2][3].state.alive = true;
-    this.state.board[3][3].state.alive = true;
     
     this.render = gameRender( this );
     this.update = gameUpdate( this );
@@ -83,7 +82,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 }
 
 
-window.game = new Game(800,800,20,20,10,false);
+window.game = new Game(600,600,20,20,10,false);
 
 module.exports = game;
 },{"./js/cells/cells.js":2,"./js/core/game.loop.js":3,"./js/core/game.render.js":4,"./js/core/game.update.js":5,"./js/utils/utils.canvas.js":6}],2:[function(require,module,exports){
@@ -272,12 +271,13 @@ function gameLoop ( scope ) {
         
         
         scope.render(); 
-        
-        // Only update if start button has been pressed
-
-        
         scope.state = scope.update( now );
-               
+        
+        //if the game has started and the board is empty, reset it
+
+        if (scope.state.start && scope.state.empty){
+            scope.init();
+        }
         
 
         }   
@@ -352,21 +352,34 @@ function gameUpdate( scope ){
             row = [];
             for (let j=0; j < scope.constants.num_columns; j++){
                 row.push(scope.state.board[i][j].state.alive)
-            
-            }
+                }
             board_copy.push(row);
         };
+
+
 
 
         // Update cells referencing static board copy
 
         if (state.hasOwnProperty('cells')){
             var cells = scope.state.cells;
+            let counter = 0
             for (var cell in cells) {
                 cells[cell].update(board_copy);
+                if(cells[cell].state.alive){
+                    counter++;
+                }
             }
+            if (counter === 0){
+                scope.state.empty = true;
+            }
+            else{
+                scope.stae.empty = false;
+            }
+
         };
-        
+    
+    // Reset the board if all of the cells are dead
 
     return state;
     }

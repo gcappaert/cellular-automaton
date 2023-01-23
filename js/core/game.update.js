@@ -11,21 +11,34 @@ function gameUpdate( scope ){
             row = [];
             for (let j=0; j < scope.constants.num_columns; j++){
                 row.push(scope.state.board[i][j].state.alive)
-            
-            }
+                }
             board_copy.push(row);
         };
+
+
 
 
         // Update cells referencing static board copy
 
         if (state.hasOwnProperty('cells')){
             var cells = scope.state.cells;
+            let counter = 0
             for (var cell in cells) {
                 cells[cell].update(board_copy);
+                if(cells[cell].state.alive){
+                    counter++;
+                }
             }
+            if (counter === 0){
+                scope.state.empty = true;
+            }
+            else{
+                scope.stae.empty = false;
+            }
+
         };
-        
+    
+    // Reset the board if all of the cells are dead
 
     return state;
     }

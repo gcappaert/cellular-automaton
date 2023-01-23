@@ -1,8 +1,15 @@
+h2{
+    justify-content: center;
+    display: flex;
+    width: 100%;
+}
+
+
 #container{
     justify-content: center;
     display: flex;
     width: 100%;
-    margin-top: 3em;
+    margin-top: 1.5em;
 }
 
 #controls{
