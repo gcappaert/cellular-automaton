@@ -1,6 +1,8 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 // /js/game.js
 
+const CellType = require('./js/cells/types.js');
+
 /* A "Game of Life" style game that builds on the rudimentary game engine scaffold of Matt Bengston. Credit to his 
 excellent tutorial (https://bengsfort.github.io/articles/making-a-js-game-part-1-game-engine/) for the folder architecture and
 frame-rate throttling approach */
@@ -12,6 +14,7 @@ frame-rate throttling approach */
 var gameLoop = require('./js/core/game.loop.js'),
     gameUpdate = require('./js/core/game.update.js'),
     gameRender = require ('./js/core/game.render.js'),
+    cellTypes = require ('./js/cells/types.js'),
     cellEnt = require('./js/cells/cells.js'),
     cUtils = require ('./js/utils/utils.canvas.js'),
     $container = document.getElementById('container');
@@ -40,6 +43,9 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     $container.insertBefore(this.viewport, $container.firstChild);
     
+    // Initialize the possible cell types
+
+    this.cellTypes = cellTypes;
 
     // intiate the state 
 
@@ -59,7 +65,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     for (let i = 0; i < num_rows; i++){
         row = [];
         for (let j=0; j < num_columns; j++){
-            let newcell = new cellEnt(this, i, j, false);
+            let newcell = new cellEnt(this, i, j, this.cellTypes.basic, false);
             this.state.cells = this.state.cells || {};
             this.state.cells.push(newcell);
             row.push(newcell);
@@ -81,29 +87,28 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
 }
 
-
 window.game = new Game(600,600,20,20,10,false);
 
 module.exports = game;
-},{"./js/cells/cells.js":2,"./js/core/game.loop.js":3,"./js/core/game.render.js":4,"./js/core/game.update.js":5,"./js/utils/utils.canvas.js":6}],2:[function(require,module,exports){
+},{"./js/cells/cells.js":2,"./js/cells/types.js":3,"./js/core/game.loop.js":4,"./js/core/game.render.js":5,"./js/core/game.update.js":6,"./js/utils/utils.canvas.js":7}],2:[function(require,module,exports){
 // ./js/cells/cells.js
 
 var mouse = require('../utils/utils.mouse.js');
 
-function Cell( scope, x, y, alive ) {
+function Cell( scope, x, y, type, alive ) {
 
 
     var cell = this;
 
 
-    // I can add a type parameter when I flesh it out a little more
 
     cell.state = {
         position: {
             x: x,
             y: y
         },
-        alive : alive
+        alive : alive,
+        type : type
     }
 
     var num_rows = scope.constants.num_rows,
@@ -119,7 +124,7 @@ function Cell( scope, x, y, alive ) {
             mouse.mouse_position.ypos > y * cell_height && 
             mouse.mouse_position.ypos < y * cell_height + cell_height){
 
-                scope.context.fillStyle = "rgba(0,0,0,0.5)"
+                scope.context.fillStyle = cell.state.type.color;
                 scope.context.fillRect(
                     x * cell_width,
                     y * cell_height,
@@ -135,7 +140,7 @@ function Cell( scope, x, y, alive ) {
 
         }
         else{
-        scope.context.fillStyle = "rgba(0,0,0,0.5)"
+        scope.context.fillStyle = cell.state.type.color;
         scope.context.fillRect(
             (cell.state.position.x) * cell_width,
             (cell.state.position.y) * cell_height,
@@ -180,29 +185,67 @@ function Cell( scope, x, y, alive ) {
         // implementing logic above
         // dies if fewer than two neighbors
 
-        if (cell.state.alive){
-            if (!(counter >=2) || counter >=4 ){
-                cell.state.alive = false;
-            } 
-        } else{
-                if(counter === 3){
-                    cell.state.alive = true;
-                }
-            };
+        // How to best organize this so that I can have each cell type's logic neatly organized? Would it be better to create a cell class
+        // From there destroying cells and reinstatintating them when they change type?
+        // Or better to encapsulate the type info in a separate module
+        
+        switch(cell.state.type.name){
+        
+        case 'basic':
+            if (cell.state.alive){
+                if (!(counter >=2) || counter >=4 ){
+                    cell.state.alive = false;
+                } 
+            } else{
+                    if(counter === 3){
+                        cell.state.alive = true;
+                    }
+                };
+            break;
+
+                
+        default:
+            //pass
 
         
-    };
+        };   
 
     
 
     return cell;
+    }
+    }
 }
-}
+
 
 
 
 module.exports = Cell;
-},{"../utils/utils.mouse.js":7}],3:[function(require,module,exports){
+},{"../utils/utils.mouse.js":8}],3:[function(require,module,exports){
+// ./js/cells/types.js
+
+const Cell = require("./cells");
+
+function CellType (name, color, s, b){
+    // s and b are standard cellular automata nomenclature
+    // s refers to the count of living neighbors necessary for a cell to survive
+    // b refers to the number of living neighbors necssary for a cell to go from dead to alive 
+    this.name = name;
+    this.color = color;
+    this.s = Array.from(s.toString()).map(Number);
+    this.b = Array.from(s.toString()).map(Number);
+
+}
+
+var cellTypes = {
+    basic : new CellType ('basic', "rgba(0,0,0,0.5)", 23, 3),
+    gnarl : new CellType ('gnarl', "rgba(255,0,0,0.5)", 1, 1)
+}
+
+
+
+module.exports = cellTypes;
+},{"./cells":2}],4:[function(require,module,exports){
 //  /js/core/game.loop.js
 
 function gameLoop ( scope ) {
@@ -291,7 +334,7 @@ function gameLoop ( scope ) {
 
 module.exports = gameLoop;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 function gameRender( scope ){
     var w = scope.constants.width,
     h = scope.constants.height,
@@ -338,7 +381,7 @@ function gameRender( scope ){
 }
 
 module.exports=gameRender;
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 function gameUpdate( scope ){
     return function update ( tframe ){
         // update the cells
@@ -374,7 +417,7 @@ function gameUpdate( scope ){
                 scope.state.empty = true;
             }
             else{
-                scope.stae.empty = false;
+                scope.state.empty = false;
             }
 
         };
@@ -388,7 +431,7 @@ function gameUpdate( scope ){
 
 
 module.exports = gameUpdate;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // /js/utils/utils.canvas.js
 module.exports = {
 getPixelRatio: function getPixelRatio(context) {
@@ -430,7 +473,7 @@ generateCanvas : function generateCanvas(w, h) {
 
 }
 }
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // js/utils/utils.mouse.js
 
 /*

@@ -33,7 +33,7 @@ function gameUpdate( scope ){
                 scope.state.empty = true;
             }
             else{
-                scope.stae.empty = false;
+                scope.state.empty = false;
             }
 
         };

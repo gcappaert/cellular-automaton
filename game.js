@@ -1,5 +1,7 @@
 // /js/game.js
 
+const CellType = require('./js/cells/types.js');
+
 /* A "Game of Life" style game that builds on the rudimentary game engine scaffold of Matt Bengston. Credit to his 
 excellent tutorial (https://bengsfort.github.io/articles/making-a-js-game-part-1-game-engine/) for the folder architecture and
 frame-rate throttling approach */
@@ -11,6 +13,7 @@ frame-rate throttling approach */
 var gameLoop = require('./js/core/game.loop.js'),
     gameUpdate = require('./js/core/game.update.js'),
     gameRender = require ('./js/core/game.render.js'),
+    cellTypes = require ('./js/cells/types.js'),
     cellEnt = require('./js/cells/cells.js'),
     cUtils = require ('./js/utils/utils.canvas.js'),
     $container = document.getElementById('container');
@@ -39,6 +42,9 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     $container.insertBefore(this.viewport, $container.firstChild);
     
+    // Initialize the possible cell types
+
+    this.cellTypes = cellTypes;
 
     // intiate the state 
 
@@ -58,7 +64,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     for (let i = 0; i < num_rows; i++){
         row = [];
         for (let j=0; j < num_columns; j++){
-            let newcell = new cellEnt(this, i, j, false);
+            let newcell = new cellEnt(this, i, j, this.cellTypes.basic, false);
             this.state.cells = this.state.cells || {};
             this.state.cells.push(newcell);
             row.push(newcell);
@@ -79,7 +85,6 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
 
 }
-
 
 window.game = new Game(600,600,20,20,10,false);
 

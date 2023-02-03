@@ -2,20 +2,20 @@
 
 var mouse = require('../utils/utils.mouse.js');
 
-function Cell( scope, x, y, alive ) {
+function Cell( scope, x, y, type, alive ) {
 
 
     var cell = this;
 
 
-    // I can add a type parameter when I flesh it out a little more
 
     cell.state = {
         position: {
             x: x,
             y: y
         },
-        alive : alive
+        alive : alive,
+        type : type
     }
 
     var num_rows = scope.constants.num_rows,
@@ -31,7 +31,7 @@ function Cell( scope, x, y, alive ) {
             mouse.mouse_position.ypos > y * cell_height && 
             mouse.mouse_position.ypos < y * cell_height + cell_height){
 
-                scope.context.fillStyle = "rgba(0,0,0,0.5)"
+                scope.context.fillStyle = cell.state.type.color;
                 scope.context.fillRect(
                     x * cell_width,
                     y * cell_height,
@@ -47,7 +47,7 @@ function Cell( scope, x, y, alive ) {
 
         }
         else{
-        scope.context.fillStyle = "rgba(0,0,0,0.5)"
+        scope.context.fillStyle = cell.state.type.color;
         scope.context.fillRect(
             (cell.state.position.x) * cell_width,
             (cell.state.position.y) * cell_height,
@@ -92,24 +92,38 @@ function Cell( scope, x, y, alive ) {
         // implementing logic above
         // dies if fewer than two neighbors
 
-        if (cell.state.alive){
-            if (!(counter >=2) || counter >=4 ){
-                cell.state.alive = false;
-            } 
-        } else{
-                if(counter === 3){
-                    cell.state.alive = true;
-                }
-            };
+        // How to best organize this so that I can have each cell type's logic neatly organized? Would it be better to create a cell class
+        // From there destroying cells and reinstatintating them when they change type?
+        // Or better to encapsulate the type info in a separate module
+        
+        switch(cell.state.type.name){
+        
+        case 'basic':
+            if (cell.state.alive){
+                if (!(counter >=2) || counter >=4 ){
+                    cell.state.alive = false;
+                } 
+            } else{
+                    if(counter === 3){
+                        cell.state.alive = true;
+                    }
+                };
+            break;
+
+                
+        default:
+            //pass
 
         
-    };
+        };   
 
     
 
     return cell;
+    }
+    }
 }
-}
+
 
 
 
