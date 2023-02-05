@@ -8,9 +8,8 @@ Monitors the current position of the mouse over canvas
 function mouseMove(){
     
     this.mouse_position = {};
-    var isClicked = false
     this.click_position = {}
-
+    let isClicked = false
 
     document.onmousemove = function(e){
         

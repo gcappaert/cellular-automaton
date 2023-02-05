@@ -1,7 +1,15 @@
 function gameUpdate( scope ){
     return function update ( tframe ){
+
+        
+
         // update the cells
         var state = scope.state || {};
+        
+        // update the cell type selection button
+
+        let button = document.getElementById("typeToggle")
+        button.innerHTML = scope.state.currentType.name;
 
         // create a static reference copy of the board
         

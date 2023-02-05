@@ -31,7 +31,7 @@ function Cell( scope, x, y, type, alive ) {
             mouse.mouse_position.ypos > y * cell_height && 
             mouse.mouse_position.ypos < y * cell_height + cell_height){
 
-                scope.context.fillStyle = cell.state.type.color;
+                scope.context.fillStyle = scope.state.currentType.color;
                 scope.context.fillRect(
                     x * cell_width,
                     y * cell_height,
@@ -64,12 +64,17 @@ function Cell( scope, x, y, type, alive ) {
         // if a cell is dead and has 3 or more live neighbors, it lives 
 
         if (!scope.state.start){
+            cell.state.type = scope.state.currentType;
             if(mouse.click_position.xpos > x * cell_width && 
                 mouse.click_position.xpos < x * cell_width + cell_width &&
                 mouse.click_position.ypos > y * cell_height && 
                 mouse.click_position.ypos < y * cell_height + cell_height){
                     if (!cell.state.alive){
                         cell.state.alive = true;
+                        mouse.click_position = {};
+                    } else {
+                        cell.state.alive = false;
+                        mouse.click_position = {};
                     }
                     
                 }
@@ -96,23 +101,18 @@ function Cell( scope, x, y, type, alive ) {
         // From there destroying cells and reinstatintating them when they change type?
         // Or better to encapsulate the type info in a separate module
         
-        switch(cell.state.type.name){
-        
-        case 'basic':
-            if (cell.state.alive){
-                if (!(counter >=2) || counter >=4 ){
-                    cell.state.alive = false;
-                } 
-            } else{
-                    if(counter === 3){
-                        cell.state.alive = true;
-                    }
-                };
-            break;
-
-                
-        default:
-            //pass
+    
+        if (cell.state.alive){
+            if (cell.state.type.s.includes(counter)){
+                cell.state.alive = true;
+            } else {
+                cell.state.alive = false;
+            }
+        } else{
+                if(cell.state.type.b.includes(counter)){
+                    cell.state.alive = true;
+                }
+            };
 
         
         };   
@@ -121,7 +121,7 @@ function Cell( scope, x, y, type, alive ) {
 
     return cell;
     }
-    }
+    
 }
 
 

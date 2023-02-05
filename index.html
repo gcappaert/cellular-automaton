@@ -8,6 +8,7 @@
 <body>
     <h2>Game of Life</h2>
     <div id="container"></div>
+    <script src="bundle.js"></script>
     <div id="controls">
         <button><img class="button" onclick="startGame(window.game)" name = "play" src="/assets/images/play.svg"></button>
         <script>
@@ -21,7 +22,16 @@
                 scope.init();
             }
         </script>
+        <button class="button" id="typeToggle" onclick="typeToggle(window.game)"></button>
+        <script>
+            function typeToggle (scope) {
+                scope.state.typeSelector = (scope.state.typeSelector + 1) % Object.keys(scope.cellTypes).length;
+                scope.state.currentType = Object.values(scope.cellTypes)[scope.state.typeSelector]
+
+            }
+        </script>
+
     </div>
-    <script src="bundle.js"></script>
+    
 </body>
 </html>

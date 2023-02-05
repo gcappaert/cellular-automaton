@@ -17,6 +17,7 @@ var gameLoop = require('./js/core/game.loop.js'),
     cellTypes = require ('./js/cells/types.js'),
     cellEnt = require('./js/cells/cells.js'),
     cUtils = require ('./js/utils/utils.canvas.js'),
+    
     $container = document.getElementById('container');
 
 function Game(w, h, num_rows, num_columns, targetFps, showFps) {
@@ -47,6 +48,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     this.cellTypes = cellTypes;
 
+
     // intiate the state 
 
     this.init = function gameInit(){
@@ -55,6 +57,10 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     this.state.start = false;
     this.state.empty = true;
     this.state.cells = [];
+
+    this.state.typeSelector = 0;
+    this.state.currentType = Object.values(this.cellTypes)[this.state.typeSelector]   
+
 
 
     // Create a board that is populated initially by a bunch of dead cell objects
@@ -65,7 +71,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     for (let i = 0; i < num_rows; i++){
         row = [];
         for (let j=0; j < num_columns; j++){
-            let newcell = new cellEnt(this, i, j, this.cellTypes.basic, false);
+            let newcell = new cellEnt(this, i, j, cellTypes.basic, false);
             this.state.cells = this.state.cells || {};
             this.state.cells.push(newcell);
             row.push(newcell);
@@ -87,7 +93,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
 }
 
-window.game = new Game(600,600,20,20,10,false);
+window.game = new Game(800,800,50,50,10,false);
 
 module.exports = game;
 },{"./js/cells/cells.js":2,"./js/cells/types.js":3,"./js/core/game.loop.js":4,"./js/core/game.render.js":5,"./js/core/game.update.js":6,"./js/utils/utils.canvas.js":7}],2:[function(require,module,exports){
@@ -124,7 +130,7 @@ function Cell( scope, x, y, type, alive ) {
             mouse.mouse_position.ypos > y * cell_height && 
             mouse.mouse_position.ypos < y * cell_height + cell_height){
 
-                scope.context.fillStyle = cell.state.type.color;
+                scope.context.fillStyle = scope.state.currentType.color;
                 scope.context.fillRect(
                     x * cell_width,
                     y * cell_height,
@@ -157,12 +163,17 @@ function Cell( scope, x, y, type, alive ) {
         // if a cell is dead and has 3 or more live neighbors, it lives 
 
         if (!scope.state.start){
+            cell.state.type = scope.state.currentType;
             if(mouse.click_position.xpos > x * cell_width && 
                 mouse.click_position.xpos < x * cell_width + cell_width &&
                 mouse.click_position.ypos > y * cell_height && 
                 mouse.click_position.ypos < y * cell_height + cell_height){
                     if (!cell.state.alive){
                         cell.state.alive = true;
+                        mouse.click_position = {};
+                    } else {
+                        cell.state.alive = false;
+                        mouse.click_position = {};
                     }
                     
                 }
@@ -189,23 +200,18 @@ function Cell( scope, x, y, type, alive ) {
         // From there destroying cells and reinstatintating them when they change type?
         // Or better to encapsulate the type info in a separate module
         
-        switch(cell.state.type.name){
-        
-        case 'basic':
-            if (cell.state.alive){
-                if (!(counter >=2) || counter >=4 ){
-                    cell.state.alive = false;
-                } 
-            } else{
-                    if(counter === 3){
-                        cell.state.alive = true;
-                    }
-                };
-            break;
-
-                
-        default:
-            //pass
+    
+        if (cell.state.alive){
+            if (cell.state.type.s.includes(counter)){
+                cell.state.alive = true;
+            } else {
+                cell.state.alive = false;
+            }
+        } else{
+                if(cell.state.type.b.includes(counter)){
+                    cell.state.alive = true;
+                }
+            };
 
         
         };   
@@ -214,7 +220,7 @@ function Cell( scope, x, y, type, alive ) {
 
     return cell;
     }
-    }
+    
 }
 
 
@@ -233,13 +239,17 @@ function CellType (name, color, s, b){
     this.name = name;
     this.color = color;
     this.s = Array.from(s.toString()).map(Number);
-    this.b = Array.from(s.toString()).map(Number);
+    this.b = Array.from(b.toString()).map(Number);
 
 }
 
 var cellTypes = {
     basic : new CellType ('basic', "rgba(0,0,0,0.5)", 23, 3),
-    gnarl : new CellType ('gnarl', "rgba(255,0,0,0.5)", 1, 1)
+    gnarl : new CellType ('gnarl', "rgba(255,0,0,0.5)", 1, 1),
+    amoeba : new CellType ('amoeba', "rgba(0,255,0,0.5", 1358, 357),
+    longlife : new CellType ('longlife', "rgba(0,0,255,0.5)", 5, 345),
+    maze : new CellType ('maze', "rgba(255,191,0,0.5",12345,3),
+    move : new CellType ('move', "rgba(159,43,104,0.5",245,368)
 }
 
 
@@ -384,8 +394,16 @@ module.exports=gameRender;
 },{}],6:[function(require,module,exports){
 function gameUpdate( scope ){
     return function update ( tframe ){
+
+        
+
         // update the cells
         var state = scope.state || {};
+        
+        // update the cell type selection button
+
+        let button = document.getElementById("typeToggle")
+        button.innerHTML = scope.state.currentType.name;
 
         // create a static reference copy of the board
         
@@ -484,9 +502,8 @@ Monitors the current position of the mouse over canvas
 function mouseMove(){
     
     this.mouse_position = {};
-    var isClicked = false
     this.click_position = {}
-
+    let isClicked = false
 
     document.onmousemove = function(e){
         

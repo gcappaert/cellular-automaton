@@ -16,6 +16,7 @@ var gameLoop = require('./js/core/game.loop.js'),
     cellTypes = require ('./js/cells/types.js'),
     cellEnt = require('./js/cells/cells.js'),
     cUtils = require ('./js/utils/utils.canvas.js'),
+    
     $container = document.getElementById('container');
 
 function Game(w, h, num_rows, num_columns, targetFps, showFps) {
@@ -46,6 +47,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
     this.cellTypes = cellTypes;
 
+
     // intiate the state 
 
     this.init = function gameInit(){
@@ -54,6 +56,10 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     this.state.start = false;
     this.state.empty = true;
     this.state.cells = [];
+
+    this.state.typeSelector = 0;
+    this.state.currentType = Object.values(this.cellTypes)[this.state.typeSelector]   
+
 
 
     // Create a board that is populated initially by a bunch of dead cell objects
@@ -64,7 +70,7 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
     for (let i = 0; i < num_rows; i++){
         row = [];
         for (let j=0; j < num_columns; j++){
-            let newcell = new cellEnt(this, i, j, this.cellTypes.basic, false);
+            let newcell = new cellEnt(this, i, j, cellTypes.basic, false);
             this.state.cells = this.state.cells || {};
             this.state.cells.push(newcell);
             row.push(newcell);
@@ -86,6 +92,6 @@ function Game(w, h, num_rows, num_columns, targetFps, showFps) {
 
 }
 
-window.game = new Game(600,600,20,20,10,false);
+window.game = new Game(800,800,50,50,10,false);
 
 module.exports = game;
